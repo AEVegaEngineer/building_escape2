@@ -20,13 +20,15 @@ UWorldPosition::UWorldPosition()
 void UWorldPosition::BeginPlay()
 {
 	Super::BeginPlay();
-	/*
+	
 	FString Log = TEXT("Hello!");
 	FString* PtrLog = &Log; // puntero a log
+	*PtrLog;// derreferenciando el puntero para obtener el valor en la direccion a la que apuntaba el puntero (Log)
 	Log.Len();
 	PtrLog->Len();
 	UE_LOG(LogTemp, Warning, TEXT("%s"), **PtrLog);
-	*/
+	
+	AActor* ActorActual = GetOwner(); // puntero a actor
 	FString ActorName = GetOwner()->GetName();
 	FString ObjectPosition = GetOwner()->GetActorLocation().ToString();
 	UE_LOG(LogTemp, Warning, TEXT("El actor %s se encuentra en %s"), *ActorName, *ObjectPosition);
