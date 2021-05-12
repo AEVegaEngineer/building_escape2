@@ -22,12 +22,6 @@ UOpenDoor::UOpenDoor()
 void UOpenDoor::BeginPlay()
 {
 	Super::BeginPlay();
-	/*
-	FRotator DoorRotator = GetOwner()->GetActorRotation();
-	DoorRotator.Yaw += YawValue;
-	GetOwner()->SetActorRotation(DoorRotator);
-	*/
-	
 	InitialYaw = GetOwner()->GetActorRotation().Yaw; //0
 	CurrentYaw = InitialYaw; // 0
 	TargetYaw += CurrentYaw; // 30+0
@@ -39,8 +33,7 @@ void UOpenDoor::BeginPlay()
 	if(!ActorThatOpens)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("%s tiene el componente OpenDoor pero no tiene un ActorThatOpens establecido"), *GetOwner()->GetName());
-	}
-	
+	}	
 }
 
 
@@ -53,14 +46,28 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	{
 		OpenDoor(DeltaTime);
 	}
-		
-	
+	else
+	{
+		CloseDoor(DeltaTime);
+	}
 }
 
 void UOpenDoor::OpenDoor(float DeltaTime)
 {
 	CurrentYaw = FMath::FInterpTo(CurrentYaw, TargetYaw, DeltaTime, TimeMultiplier);
+	UpdateDoorsYaw(CurrentYaw);
+}
+
+void UOpenDoor::CloseDoor(float DeltaTime)
+{	
+	CurrentYaw = FMath::FInterpTo(CurrentYaw, InitialYaw, DeltaTime, TimeMultiplier);
+	UpdateDoorsYaw(CurrentYaw);
+}
+
+void UOpenDoor::UpdateDoorsYaw(float CurrentDoorsYaw)
+{
+	//UE_LOG(LogTemp, Warning, TEXT("%s's Yaw: %f"), *GetOwner()->GetName(), GetOwner()->GetActorRotation().Yaw);
 	FRotator DoorRotation = GetOwner()->GetActorRotation();
-	DoorRotation.Yaw = CurrentYaw;
+	DoorRotation.Yaw = CurrentDoorsYaw;
 	GetOwner()->SetActorRotation(DoorRotation);
 }
