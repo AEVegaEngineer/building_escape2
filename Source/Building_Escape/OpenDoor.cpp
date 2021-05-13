@@ -24,10 +24,10 @@ void UOpenDoor::BeginPlay()
 	Super::BeginPlay();
 	InitialYaw = GetOwner()->GetActorRotation().Yaw; //0
 	CurrentYaw = InitialYaw; // 0
-	TargetYaw += CurrentYaw; // 30+0
-	if(!PressurePlate)
+	AnguloParaAbrir += CurrentYaw; // 30+0
+	if(!Accionador)
 	{
-		UE_LOG(LogTemp, Error, TEXT("%s tiene el componente OpenDoor pero no tiene un PressurePlate establecido!"), *GetOwner()->GetName());
+		UE_LOG(LogTemp, Error, TEXT("%s tiene el componente OpenDoor pero no tiene un Accionador establecido!"), *GetOwner()->GetName());
 	}
 	ActorThatOpens = GetWorld()->GetFirstPlayerController()->GetPawn();
 	if(!ActorThatOpens)
@@ -42,7 +42,7 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	//UE_LOG(LogTemp, Warning, TEXT("%s's Yaw: %f"), *GetOwner()->GetName(), GetOwner()->GetActorRotation().Yaw);
-	if(PressurePlate && PressurePlate->IsOverlappingActor(ActorThatOpens))
+	if(Accionador && Accionador->IsOverlappingActor(ActorThatOpens))
 	{
 		OpenDoor(DeltaTime);
 		//when the door was opened
@@ -52,8 +52,8 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	{
 		// dandole un delay al jugador para que escape
 		float CurrentTime = GetWorld()->GetTimeSeconds();
-		//UE_LOG(LogTemp, Warning, TEXT("CurrentTime: %f, DoorLastOpened+DoorClosedDelay: %f"), CurrentTime, DoorLastOpened+DoorClosedDelay);
-		if(CurrentTime >= DoorLastOpened+DoorClosedDelay)
+		//UE_LOG(LogTemp, Warning, TEXT("CurrentTime: %f, DoorLastOpened+RetardoParaCerrar: %f"), CurrentTime, DoorLastOpened+RetardoParaCerrar);
+		if(CurrentTime >= DoorLastOpened+RetardoParaCerrar)
 		{
 			CloseDoor(DeltaTime);
 		}
@@ -63,13 +63,13 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 
 void UOpenDoor::OpenDoor(float DeltaTime)
 {
-	CurrentYaw = FMath::FInterpTo(CurrentYaw, TargetYaw, DeltaTime, TimeMultiplier);
+	CurrentYaw = FMath::FInterpTo(CurrentYaw, AnguloParaAbrir, DeltaTime, TiempoParaAbrir);
 	UpdateDoorsYaw(CurrentYaw);
 }
 
 void UOpenDoor::CloseDoor(float DeltaTime)
 {	
-	CurrentYaw = FMath::FInterpTo(CurrentYaw, InitialYaw, DeltaTime, TimeMultiplier);
+	CurrentYaw = FMath::FInterpTo(CurrentYaw, InitialYaw, DeltaTime, TiempoParaAbrir);
 	UpdateDoorsYaw(CurrentYaw);
 }
 
