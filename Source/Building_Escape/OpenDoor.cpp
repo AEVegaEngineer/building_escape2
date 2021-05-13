@@ -45,11 +45,20 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	if(PressurePlate && PressurePlate->IsOverlappingActor(ActorThatOpens))
 	{
 		OpenDoor(DeltaTime);
+		//when the door was opened
+		DoorLastOpened = GetWorld()->GetTimeSeconds();
 	}
 	else
 	{
-		CloseDoor(DeltaTime);
+		// dandole un delay al jugador para que escape
+		float CurrentTime = GetWorld()->GetTimeSeconds();
+		//UE_LOG(LogTemp, Warning, TEXT("CurrentTime: %f, DoorLastOpened+DoorClosedDelay: %f"), CurrentTime, DoorLastOpened+DoorClosedDelay);
+		if(CurrentTime >= DoorLastOpened+DoorClosedDelay)
+		{
+			CloseDoor(DeltaTime);
+		}
 	}
+	
 }
 
 void UOpenDoor::OpenDoor(float DeltaTime)
