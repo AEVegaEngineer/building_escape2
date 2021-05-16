@@ -56,15 +56,34 @@ void UGrabber::Grab()
 {
 	UE_LOG(LogTemp,Warning, TEXT("Grabber Pressed!!"));
 
-	GetFirstPhysicsBodyInReach();
+	// Get Players Viewpoint
+	FVector PlayerViewPointLocation = {0.f,0.f,0.f};
+	FRotator PlayerViewPointRotation = {0.f,0.f,0.f};
+	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint( OUT PlayerViewPointLocation, OUT PlayerViewPointRotation);
+	//UE_LOG(LogTemp, Warning, TEXT("PlayerViewPointLocation: %s, PlayerViewPointRotation: %s"),*PlayerViewPointLocation.ToString(),*PlayerViewPointRotation.ToString());
+	// Draw a line from player showing the reach	
+	FVector LineTraceEnd = PlayerViewPointLocation + ( PlayerViewPointRotation.Vector() * Alcance) ;
+
+	FHitResult HitResult = GetFirstPhysicsBodyInReach();
 
 	//If we hit something then attach the physics handle
 	//TODO attach physics handle
+	UPrimitiveComponent* ComponentToGrab = HitResult.GetComponent();
+	if(HitResult.GetActor())
+	{
+		PhysicsHandle->GrabComponentAtLocation
+		(
+			ComponentToGrab,
+			NAME_None,
+			LineTraceEnd
+		);
+	}
 }
 void UGrabber::Release()
 {
 	UE_LOG(LogTemp,Warning, TEXT("Grabber Released!!"));
 	//TODO remove/release the physics handle
+	PhysicsHandle->ReleaseComponent();
 }
 
 
@@ -72,13 +91,19 @@ void UGrabber::Release()
 void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
+	// Get Players Viewpoint
+	FVector PlayerViewPointLocation = {0.f,0.f,0.f};
+	FRotator PlayerViewPointRotation = {0.f,0.f,0.f};
+	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint( OUT PlayerViewPointLocation, OUT PlayerViewPointRotation);
+	//UE_LOG(LogTemp, Warning, TEXT("PlayerViewPointLocation: %s, PlayerViewPointRotation: %s"),*PlayerViewPointLocation.ToString(),*PlayerViewPointRotation.ToString());
+	// Draw a line from player showing the reach	
+	FVector LineTraceEnd = PlayerViewPointLocation + ( PlayerViewPointRotation.Vector() * Alcance) ;
 	//If the physics handle is attached
+	if (PhysicsHandle->GrabbedComponent)
+	{
 		//move the object we are holding
-	
-
-	
-	
+		PhysicsHandle->SetTargetLocation(LineTraceEnd);
+	}
 }
 
 FHitResult UGrabber::GetFirstPhysicsBodyInReach() const 
