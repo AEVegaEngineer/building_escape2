@@ -27,7 +27,7 @@ void UGrabber::BeginPlay()
 void UGrabber::FindPhysicsHandle()
 {
 	PhysicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
-	if(PhysicsHandle == nullptr)
+	if(!PhysicsHandle)
 	{	
 		UE_LOG(LogTemp,Error, TEXT("Error!: el objeto %s tiene la clase Grabber pero le falta el componente PhysicsHandle!"),*GetOwner()->GetName());
 	}
@@ -52,22 +52,39 @@ void UGrabber::Grab()
 {
 	FHitResult HitResult = GetFirstPhysicsBodyInReach();
 	UPrimitiveComponent* ComponentToGrab = HitResult.GetComponent();
-	if(HitResult.GetActor())
+	AActor* ActorHit = HitResult.GetActor();
+	if(ActorHit)
 	{
-		PhysicsHandle->GrabComponentAtLocation
-		(
-			ComponentToGrab,
-			NAME_None,
-			GetLineTraceEnd()
-		);
+		if(PhysicsHandle)
+		{
+			PhysicsHandle->GrabComponentAtLocation
+			(
+				ComponentToGrab,
+				NAME_None,
+				GetPlayersReach()
+			);
+		}
+		else
+		{
+			UE_LOG(LogTemp,Error, TEXT("Error!: el objeto %s tiene la clase Grabber pero le falta el componente PhysicsHandle!"),*ActorHit->GetName());
+		}
+		
 	}
 }
 void UGrabber::Release()
 {
-	PhysicsHandle->ReleaseComponent();
+	if(PhysicsHandle)
+	{		
+		PhysicsHandle->ReleaseComponent();		
+	}
+	else
+	{		
+		UE_LOG(LogTemp,Error, TEXT("Error!: No puedes recoger el objeto %s, porque el objeto %s tiene la clase Grabber pero le falta el componente PhysicsHandle!"),*PhysicsHandle->GrabbedComponent->GetOwner()->GetName(),*GetOwner()->GetName());
+	}
+	
 }
 
-FVector UGrabber::GetLineTraceEnd() const
+FVector UGrabber::GetPlayersReach() const
 {
 	// Get Players Viewpoint
 	FVector PlayerViewPointLocation = {0.f,0.f,0.f};
@@ -87,7 +104,7 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	if (PhysicsHandle->GrabbedComponent)
 	{
 		//move the object we are holding
-		PhysicsHandle->SetTargetLocation(GetLineTraceEnd());
+		PhysicsHandle->SetTargetLocation(GetPlayersReach());
 	}
 }
 
@@ -112,7 +129,7 @@ FHitResult UGrabber::GetFirstPhysicsBodyInReach() const
 	bool FoundSomething = GetWorld()->LineTraceSingleByObjectType(
 		OUT Hit,
 		GetOwner()->GetActorLocation(),
-		GetLineTraceEnd(),
+		GetPlayersReach(),
 		FCollisionObjectQueryParams(ECollisionChannel::ECC_PhysicsBody), // lo que queremos intersectar
 		TraceParams // lo que no queremos intersectar
 	);

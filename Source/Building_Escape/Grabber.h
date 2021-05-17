@@ -28,7 +28,9 @@ public:
 private:
 	UPROPERTY(EditAnywhere)
 	float Alcance = 100.f;
+	UPROPERTY();
 	UPhysicsHandleComponent* PhysicsHandle = nullptr;
+	UPROPERTY();
 	UInputComponent* Input = nullptr;
 	
 	void Grab();
@@ -37,5 +39,5 @@ private:
 	void SetupInputComponent();
 	// Return the first Actor within reach with physics body.
 	FHitResult GetFirstPhysicsBodyInReach() const;
-	FVector GetLineTraceEnd() const;
+	FVector GetPlayersReach() const;
 };

@@ -27,6 +27,9 @@ public:
 	void OpenDoor(float DeltaTime);
 	void CloseDoor(float DeltaTime);
 	void UpdateDoorsYaw(float CurrentDoorsYaw);
+	float GetTotalMassOfActors() const;
+	void FindAudioComponent();
+	void FindPressurePlate();
 
 private:
 	float InitialYaw;
@@ -38,13 +41,22 @@ private:
 	UPROPERTY(EditAnywhere);
 	float AnguloParaAbrir = 90.0f;	
 
+	UPROPERTY(EditAnywhere);
+	float PesoParaAbrir = 50.0f;	
+
 	float DoorLastOpened = 0.0f;
 
 	UPROPERTY(EditAnywhere);
 	float RetardoParaCerrar = 2.f;
 
 	UPROPERTY(EditAnywhere);
-	ATriggerVolume* Accionador;
+	ATriggerVolume* Accionador = nullptr;
 
-	AActor* ActorThatOpens;
+	//AActor* ActorThatOpens = nullptr;
+	UPROPERTY();
+	UAudioComponent* AudioComponent = nullptr;
+	UPROPERTY();
+	UInputComponent* Input = nullptr;
+
+	bool DoorOpen = false;
 };
